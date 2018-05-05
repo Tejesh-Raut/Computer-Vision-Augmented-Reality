@@ -3,9 +3,9 @@ function myAR_prev()
     addpath(genpath('src'));
     addpath(genpath('images'));
     [v, f, col] = getHumanoidCoordinates();
-    H = getHomography('test.bmp', 'test.bmp');
+    H = getHomography('texture4.bmp', 'texture4.bmp');
 %     v1= v;
     v1 = applyHomography(v, H);
-    drawMesh(v1, f, col, 'test.bmp');
+    drawMesh(v1, f, col, 'texture4.bmp');
 end
 

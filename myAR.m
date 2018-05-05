@@ -52,7 +52,7 @@ function myAR(testImage, referenceImage)
         = estimateGeometricTransform(...
                 matchedTexturePts, matchedInputPts, 'Similarity');
     if(status~=0)
-        disp('Cannot find reference image');
+        disp('Cannot detect reference image in given image');
         %quit;
     else
         
@@ -76,4 +76,5 @@ function myAR(testImage, referenceImage)
     disp((textureTransformMatrix.T));
     end;
 end
+
 
