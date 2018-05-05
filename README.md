@@ -10,15 +10,15 @@ overlay the image with a 3D model over it.
 over a sequence of test images to get a video of AR. 
 
  
+
  
- 
- 
+
  Files used and the code they contain:
 
 -   **getHumanoidCoordinates.m​** : Returns 3 matrices - vertex
     coordinates, triangle face orders, color of each vertex. It
     represents a 3D model of a humanoid robot. ![humanoid
-    image](humanoid.png)
+    image](doc/humanoid.png)
 -   **drawMesh.m​** : Draws the 3D model over the test image.
 -   **getHomography.m**​ : Computes and return a 4X4 homography matrix,
     given a texture and the test image.
@@ -31,22 +31,22 @@ over a sequence of test images to get a video of AR.
 
 
  
- 
+
  A sample example: 
  **Texture plane to be detected:** 
- 
+
  ![](doc/ex1.png) 
- 
+
  **Test Image:** 
- 
+
  ![](doc/ex2.png) 
- 
+
  **Final Image:** 
- 
+
  ![](doc/ex3.png) 
- 
+
  ![](doc/ex4.png) 
- 
+
 
 What have we achieved:
 ----------------------
@@ -70,5 +70,5 @@ original image. So we have applied the transformation and showed it
 alongside the image. 
 
  Here are some results: 
- 
+
  ![](doc/final_result.jpg)
