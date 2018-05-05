@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Computer Vision Final Project</title>
+</head>
+<body>
+	<h1>Implementing Augmented Reality 3D object after Texture detection:</h1>
+	<br>
+	Implement pre-trained texture detection in any test image and then overlay the image with a 3D model over it.
+	<br>
+	Once the 3D model is placed over a given test image, it can be placed over a sequence of test images to get a video of AR.
+	<br>
+
+	<br>
+	<br>
+	Files used and the code they contain:
+	<ul>
+		<li>
+			<b>getHumanoidCoordinates.m​</b> : Returns 3 matrices - vertex coordinates, triangle face orders, color of each vertex. It represents a 3D model of a humanoid robot.
+			<img src="humanoid.png" width=30% alt="humanoid image"/>
+		</li>
+		<li>
+			<b>drawMesh.m​</b> : Draws the 3D model over the test image.
+		</li>
+		<li>
+			<b>getHomography.m</b>​ : Computes and return a 4X4 homography matrix, given a texture and the test image.
+		</li>
+		<li>
+			<b>applyHomography.m​</b> : Multiplies the 4X4 homography matrix to the vertex coordinates after making them homogeneous, to place the 3D model at correct place and in proper orientation over the input test image. Returns back new 3D coordinates.
+		</li>
+		<li>
+			<b>myAR.m</b> : main file to run the project.
+		</li>
+	</ul>
+	
+	<br>
+	<br>
+	A sample example:
+	<br>
+
+	<b>Texture plane to be detected:</b>
+	<br>
+	<img src="ex1.png" alt="ex1.png" width=30%>
+	<br>
+	<b>Test Image:</b>
+	<br>
+	<img src="ex2.png" alt="ex2.png" width=30%>
+	<br>
+	<b>Final Image:</b>
+	<br>
+	<img src="ex3.png" alt="ex3.png" width=50%>
+	<br>
+	<img src="ex4.png" alt="ex4.png" width=50%>
+	<br>
+
+	<h2>What have we achieved:</h2>
+	<br>
+	We were not able to find the transformation to place a 3D model over a 2D object detected. It has several issues. A article of stackoverflow discusses these: <a href="https://stackoverflow.com/questions/42608708/how-to-get-the-transformation-matrix-of-a-3d-model-to-object-in-a-2d-image">Transformation matrix of a 3d model to object in a 2d image</a>
+	<br>
+	Then we moved on to place a 2D image instead of the 3D model over the detected area. For object detection we referred to the article: <a href="https://in.mathworks.com/videos/object-recognition-and-tracking-for-augmented-reality-90546.html">Object Recognition and Tracking for Augmented Reality</a>
+	<br>
+	In that we were not able to place the transformed image over the original image. So we have applied the transformation and showed it alongside the image.
+	<br>
+	Here are some results:
+	<br>
+	<img src="final_result.jpg" alt="final_result.jpg" width=80%>
+</body>
+</html>
