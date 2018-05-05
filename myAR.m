@@ -1,12 +1,19 @@
 function myAR(testImage, referenceImage)
 % Main file to run
+% https://stackoverflow.com/questions/42608708/how-to-get-the-transformation-matrix-of-a-3d-model-to-object-in-a-2d-image
+% This article mentions the problem in finding a transformation matrix to
+% place a 3D model over a 2D object detected
+% For object detection we reffered https://in.mathworks.com/videos/object-recognition-and-tracking-for-augmented-reality-90546.html
+
     addpath(genpath('src'));
     addpath(genpath('images'));
-    [v, f, col] = getHumanoidCoordinates();
-    reference = imread(referenceImage);
-    referenceGray = rgb2gray(reference);
-    referencePts = detectSURFFeatures(referenceGray);
-    referenceFeatures = extractFeatures(referenceGray, referencePts);
+%     [v, f, col] = getHumanoidCoordinates();
+
+
+    texture = imread(referenceImage);
+    textureGray = rgb2gray(texture);
+    texturePts = detectSURFFeatures(textureGray);
+    textureFeatures = extractFeatures(textureGray, texturePts);
     
     %% 
 %     figure;
@@ -17,6 +24,8 @@ function myAR(testImage, referenceImage)
     inputframe = imread(testImage);
 
     inputframeGray = rgb2gray(inputframe);
+    
+%%
 %     figure(2);
 %     imshow(inputframe);
 
@@ -26,131 +35,45 @@ function myAR(testImage, referenceImage)
 %     imshow(inputframe); hold on;
 %     plot(inputPts.selectStrongest(50));
     
+%%
     inputFeatures = extractFeatures(inputframeGray, inputPts);
     
-    idxPairs = matchFeatures(inputFeatures, referenceFeatures);
+    idxPairs = matchFeatures(inputFeatures, textureFeatures);
     matchedInputPts = inputPts(idxPairs(:, 1));
-    matchedReferencePts = referencePts(idxPairs(:, 2));
+    matchedTexturePts = texturePts(idxPairs(:, 2));
     
+%%
 %     figure(1);
 %     showMatchedFeatures(inputframe, referenceImage, ...
 %                         matchedInputPts, matchedReferencePts, 'Montage');
                     
-    %% Geometric transformation
-    [referenceTransform, inlierReferencePts, inlierCameraPts, status] ...
+%% Geometric transformation
+    [textureTransformMatrix, ~, ~, status] ...
         = estimateGeometricTransform(...
-                matchedReferencePts, matchedInputPts, 'Similarity');
+                matchedTexturePts, matchedInputPts, 'Similarity');
     if(status~=0)
         disp('Cannot find reference image');
         %quit;
     else
         
-        outputFrame = imread('temp.jpg');
+        outputFrame = imread('temp.jpg'); % template to be placed over the image
+%%
 %      figure(1);
 %      showMatchedFeatures(inputframe, referenceImage, ...
 %                         inlierCameraPts, inlierReferencePts, 'Montage');
-    
-                    
-      %{
-      repDims = size(outputFrame(:, :, 1));
-      disp(repDims);
-      refDims = size(referenceImage);
-      disp(refDims);
-      scaleTransform = findScaleTransform(refDims, repDims);
-      
-      outputView = imref2d(size(referenceImage));
-      
-      videoFrameScaled = imwarp(outputFrame, scaleTransform, ...
-                                'OutputView', outputView);
-      
-      figure(1);
-      imshowpair(referenceImage, videoFrameScaled, 'Montage');
-      
-      %}
-      disp(referenceTransform)
+
+%%
+      disp(textureTransformMatrix)
       outputView = imref2d(size(inputframe));
-      videoFrameTransformed = imwarp(outputFrame, referenceTransform, ...
+      outputTransformed = imwarp(outputFrame, textureTransformMatrix, ...
                                     'OutputView', outputView);
-                                
+%%
       figure(1);
-      imshowpair(inputframe, videoFrameTransformed, 'Montage');
-      %%
-      %{
-      alphaBlender = vision.AlphaBlender( ...
-     'Operation', 'Binary mask', 'MaskSource', 'Input port');
+      imshowpair(inputframe, outputTransformed, 'Montage');
 
-mask = videoFrameTransformed(:, :, 1) | ...
-       videoFrameTransformed(:, :, 2) | ...
-       videoFrameTransformed(:, :, 3) > 0;
+%%
 
-outputFrame = step(alphaBlender, inputframe, videoFrameTransformed, mask);
-
-figure(1)
-imshow(outputFrame);
-
-pointTracker = vision.PointTracker('MaxBidirectionalError', 2);
-initialize(pointTracker, inlierCameraPts.Location, ...
-'Size', 7, 'Color', 'yellow');
-
-figure(1)
-imshow(trackingMarkers);
-%}
-%124
-% prevCameraFrame = inputframe;
-% 
-% cameraFrame = snapshot(camera);
-% 
-% [trackedPoints, isValid] = step(pointTracker, cameraFrame);
-% 
-% newValidLocations = trackedPoints(isValid, :);
-% oldValidLocations = inlierCameraPts.Location(isValid, :);
-% 
-% if(nnz(isValid) >= 2)
-% [trackingTransform, oldInlierLocations, newInlierLocations] = ...
-%   estimateGeometricTransform( ...
-%      oldValidLocations, newValidLocations, 'Similarity');
-% end
-
-% figure(1)
-% showMatchedFeatures(prevCameraFrame, cameraFrame, ...
-%    oldInlierLocations, newInlierLocations, 'Montage');
-% 
-% setPoints(pointTracker, newValidLocations);
-
-%155
-% trackingTransform.T = referenceTransform.T * trackingTransform.T;
-% 
-% repFrame = step(video);
-% 
-% outputView = imref2d(size(referenceImage));
-% videoFrameScaled = imwarp(videoFrame, sclaeTransform, ...
-%    'OutputView', outputView);
-% 
-% figure(1)
-% imshowpair(referenceImage, videoFrameScaled, 'Montage');
-
-%170
-% outputView = imref2d(size(cameraFrame));
-% videoFrameTransformed = imwarp(videoFrameScaled, trackingTransform, ... 
-%   'OutputView', outputView);
-% figure(1)
-% imshowpair(referenceImage, videoFrameTransformed, 'Montage');
-% 
-% mask = videoFrameTransformed(:, :, 1) | ...
-%        videoFrameTransformed(:, :, 2) | ...
-%        videoFrameTransformed(:, :, 3) > 0;
-% 
-% outputFrame = step(alphaBlender, cameraFrame, videoFrameTransformed, mask);
-% 
-% figure(1)
-% imshow(outputFrame);
-% 
-% release(video)
-% delete(camera)
-    %%
-%     H = getHomography('test.bmp', 'texture.bmp');
-%     disp(H);
-    disp((referenceTransform.T));
+    disp((textureTransformMatrix.T));
     end;
 end
 
