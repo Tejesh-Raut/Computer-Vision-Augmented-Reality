@@ -1,29 +1,20 @@
-function myAR()
+function myAR(testImage, referenceImage)
 % Main file to run
     addpath(genpath('src'));
     addpath(genpath('images'));
     [v, f, col] = getHumanoidCoordinates();
-    referenceImage = imread('texture.bmp');
-    referenceImageGray = rgb2gray(referenceImage);
-    referencePts = detectSURFFeatures(referenceImageGray);
-    referenceFeatures = extractFeatures(referenceImageGray, referencePts);
+    reference = imread(referenceImage);
+    referenceGray = rgb2gray(reference);
+    referencePts = detectSURFFeatures(referenceGray);
+    referenceFeatures = extractFeatures(referenceGray, referencePts);
     
-    %% display surf features
+    %% 
 %     figure;
 %     imshow(referenceImage); hold on;
-%     plot(referencePts.selectStrongest(50));
-    
-    %% Video output
-%     video = vision.VideoFileReader('JnK.wmv', ...
-%                                     'VideoOutputDataType', 'uint8');
-%     
-%     for k = 1:50
-%         step(video);
-%     end;
-    
+%     plot(referencePts.selectStrongest(50));    
     
     %% input
-    inputframe = imread('test2.jpg');
+    inputframe = imread(testImage);
 
     inputframeGray = rgb2gray(inputframe);
 %     figure(2);
@@ -46,16 +37,20 @@ function myAR()
 %                         matchedInputPts, matchedReferencePts, 'Montage');
                     
     %% Geometric transformation
-    [referenceTransform, inlierReferencePts, inlierCameraPts] ...
+    [referenceTransform, inlierReferencePts, inlierCameraPts, status] ...
         = estimateGeometricTransform(...
                 matchedReferencePts, matchedInputPts, 'Similarity');
-    
+    if(status~=0)
+        disp('Cannot find reference image');
+        %quit;
+    else
+        
+        outputFrame = imread('temp.jpg');
 %      figure(1);
 %      showMatchedFeatures(inputframe, referenceImage, ...
 %                         inlierCameraPts, inlierReferencePts, 'Montage');
     
                     
-      [outputFrame, map, alpha] = imread('Pranay.png');
       %{
       repDims = size(outputFrame(:, :, 1));
       disp(repDims);
@@ -78,10 +73,7 @@ function myAR()
                                     'OutputView', outputView);
                                 
       figure(1);
-%       imshowpair(inputframe, videoFrameTransformed, 'Montage');
-      I = imshow(videoFrameTransformed, 'Parent');
-      set(I,'AlphaData',alpha);
-      imshow(inputframe,'Parent');
+      imshowpair(inputframe, videoFrameTransformed, 'Montage');
       %%
       %{
       alphaBlender = vision.AlphaBlender( ...
@@ -159,6 +151,6 @@ imshow(trackingMarkers);
 %     H = getHomography('test.bmp', 'texture.bmp');
 %     disp(H);
     disp((referenceTransform.T));
-    
+    end;
 end
 
